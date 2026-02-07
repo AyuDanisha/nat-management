@@ -21,7 +21,9 @@ STATE_DIR="/var/lib/vps-nat"
 mkdir -p "$STATE_DIR"
 chmod 700 "$STATE_DIR"
 
-gen_idnat() { echo "nat-$(tr -dc 'a-f0-9' </dev/urandom | head -c 8)" }
+gen_idnat() { 
+  echo "nat-$(tr -dc 'a-f0-9' </dev/urandom | head -c 8)"
+}
 log()  { echo -e "[\e[32mINFO\e[0m] $*"; }
 warn() { echo -e "[\e[33mWARN\e[0m] $*" >&2; }
 die()  { echo -e "[\e[31mERR\e[0m]  $*" >&2; exit 1; }
@@ -1003,8 +1005,6 @@ main() {
     -h|--help|"") usage;;
     *) die "Unknown command: $cmd (try --help)";;
   esac
-}
-
 }
 
 main "$@"
