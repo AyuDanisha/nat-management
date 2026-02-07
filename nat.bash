@@ -244,7 +244,9 @@ ensure_packages_setup() {
   export DEBIAN_FRONTEND=noninteractive
   apt update -y
   apt upgrade -y
-  apt install -y lxc lxc-templates uidmap iptables iptables-persistent bridge-utils jq curl dnsutils
+  apt install -y lxc lxc-templates uidmap iptables iptables-persistent bridge-utils jq curl dnsutils lvm2
+  apt install -y lxcfs netfilter-persistent qemu-utils cloud-image-utils debootstrap uuid-runtime
+
   # tc lives in iproute2 (usually installed)
   apt install -y iproute2
 }
