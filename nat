@@ -742,8 +742,8 @@ cmd_create() {
   lxc-attach -n "$name" -- bash -lc "ping -c 1 -W 2 1.1.1.1 >/dev/null && echo 'OK: internet reachable' || (echo 'WARN: cannot reach internet' && exit 0)"
 
   trap - ERR
-local state_file="${STATE_DIR}/${idNat}.json"
-cat > "$state_file" <<EOF
+  local state_file="${STATE_DIR}/${idNat}.json"
+  cat > "$state_file" <<EOF
 {
   "idNat": "${idNat}",
   "name": "${name}",
