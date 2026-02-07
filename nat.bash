@@ -687,6 +687,9 @@ cmd_create() {
   if [[ "$create_ok" -ne 1 ]]; then
     die "Failed to create LXC container."
   fi
+  if [[ ! -f "/var/lib/lxc/$name/config" ]]; then
+    die "Container config not found: /var/lib/lxc/$name/config (lxc-create incomplete)."
+  fi
 
   # Rollback handler
   local idNat
