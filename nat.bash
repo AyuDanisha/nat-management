@@ -619,9 +619,7 @@ cmd_create() {
   local hostname="$name"
   local hosts_map=""   # "google.com=5.180.255.138,foo.com=1.2.3.4"
   local dns="$DEFAULT_DNS"
-  assert_port_free "$ssh_port"
-  assert_ip_free "$ip"
-
+  
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --os) os_spec="$2"; shift 2;;
@@ -645,6 +643,9 @@ cmd_create() {
 
   [[ -n "$ip" ]] || die "Missing --ip (example: --ip 10.10.0.10)"
   [[ -n "$ssh_port" ]] || die "Missing --ssh-port (example: --ssh-port 22010)"
+
+  assert_port_free "$ssh_port"
+  assert_ip_free "$ip"
 
   # Validate os_spec
   local distro release
