@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
-
 # ==========================================
 # VPS NAT + LXC Manager (Shell Automation)
 # Commands:
