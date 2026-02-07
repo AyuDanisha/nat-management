@@ -249,9 +249,52 @@ ensure_packages_setup() {
   apt install -y iproute2
 }
 
+ensure_bridge_ifupdown() {
+  local bridge="$1" gw_ip="$2"
+
+  if ip link show "$bridge" >/dev/null 2>&1; then
+    log "Bridge $bridge already exists (skip create)."
+    return
+  fi
+
+  local ifdir="/etc/network/interfaces.d"
+  local iffile="${ifdir}/99-${bridge}.cfg"
+
+  mkdir -p "$ifdir"
+
+  log "Netplan not found. Creating ifupdown bridge $bridge with IP $gw_ip/24 (NAT subnet)..."
+  cat > "$iffile" <<EOF
+auto ${bridge}
+iface ${bridge} inet static
+  address ${gw_ip}
+  netmask 255.255.255.0
+  bridge_ports none
+  bridge_stp off
+  bridge_fd 0
+EOF
+
+  # Bring up now (best effort).
+  command -v ifdown >/dev/null 2>&1 && ifdown "$bridge" >/dev/null 2>&1 || true
+  command -v ifup  >/dev/null 2>&1 && ifup  "$bridge" >/dev/null 2>&1 || true
+
+  # Fallback: create bridge live if ifup didn't create it.
+  if ! ip link show "$bridge" >/dev/null 2>&1; then
+    ip link add name "$bridge" type bridge >/dev/null 2>&1 || true
+    ip addr add "${gw_ip}/24" dev "$bridge" >/dev/null 2>&1 || true
+    ip link set "$bridge" up >/dev/null 2>&1 || true
+  fi
+
+  ip link show "$bridge" >/dev/null 2>&1 || die "Failed to bring up bridge $bridge. Check /etc/network/interfaces(.d)."
+}
+
 ensure_bridge_netplan() {
   local bridge="$1" gw_ip="$2"
   local netplan_file="/etc/netplan/99-${bridge}.yaml"
+
+  if [[ ! -d /etc/netplan ]] || ! command -v netplan >/dev/null 2>&1; then
+    ensure_bridge_ifupdown "$bridge" "$gw_ip"
+    return
+  fi
 
   if ip link show "$bridge" >/dev/null 2>&1; then
     log "Bridge $bridge already exists (skip netplan create)."
